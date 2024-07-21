@@ -7,13 +7,15 @@
     "dev": "bun run --watch --hot index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prisma": "^5.17.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
+    "@prisma/client": "5.17.0",
     "hono": "^4.5.1"
   }
 }
