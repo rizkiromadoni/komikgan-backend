@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
 import userRoutes from "./routes/users"
+import authRoutes from "./routes/authentications"
 
 const app = new Hono()
 
@@ -10,6 +11,7 @@ app.get("/", (c) => {
 
 const routes = app
 .route("/users", userRoutes)
+.route("/authentications", authRoutes)
 
 app.onError((error, c) => {
   console.log(error)
