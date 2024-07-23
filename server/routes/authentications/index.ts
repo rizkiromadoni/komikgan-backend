@@ -48,6 +48,9 @@ const authRoutes = new Hono()
         const user = await getUser({ id: payload.id })
         if (!user) throw new AuthenticationError("Invalid refresh token")
 
+        const storedRefreshToken = await redis.get(`refreshToken:${user.id}`)
+        if (storedRefreshToken !== refreshToken) throw new AuthenticationError("Invalid refresh token")
+
         const accessToken = await tokenManager.generateAccessToken({ id: user.id, role: user.role })
         const newRefreshToken = await tokenManager.generateRefreshToken({ id: user.id, role: user.role })
 
@@ -57,6 +60,19 @@ const authRoutes = new Hono()
             status: "success",
             data: { accessToken, refreshToken: newRefreshToken }
         })
+    }
+)
+
+.delete("/",
+    zValidator("json", AuthSchema.RefreshTokenSchema),
+    async (c) => {
+        const { refreshToken } = c.req.valid("json")
+
+        const payload = await tokenManager.verifyRefreshToken(refreshToken) as any
+        if (!payload) throw new AuthenticationError("Invalid refresh token")
+
+        await redis.set(`refreshToken:${payload.id}`, "")
+        return c.json({ status: "success", message: "Logout success" })
     }
 )
 
