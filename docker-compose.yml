@@ -10,6 +10,7 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
 
   postgres:
     image: postgres:latest
@@ -23,6 +24,13 @@ services:
       - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/var/lib/redis
   
   adminer:
     image: adminer:latest
@@ -33,3 +41,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
