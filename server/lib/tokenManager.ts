@@ -14,10 +14,18 @@ const tokenManager = {
         }, process.env.REFRESH_TOKEN_SECRET!)
     },
     verifyAccessToken: async (token: string) => {
-        return await verify(token, process.env.ACCESS_TOKEN_SECRET!)
+        try {
+            return await verify(token, process.env.ACCESS_TOKEN_SECRET!)
+        } catch (error) {
+            return null
+        }
     },
     verifyRefreshToken: async (token: string) => {
-        return await verify(token, process.env.REFRESH_TOKEN_SECRET!)
+        try {
+            return await verify(token, process.env.REFRESH_TOKEN_SECRET!)
+        } catch (error) {
+            return null
+        }
     },
     decode: (token: string) => {
         return decode(token)
