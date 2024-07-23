@@ -1,9 +1,8 @@
-import app from "./server/app";
+import app from "./server/app"
 
 Bun.serve({
-    fetch: app.fetch,
-    hostname: Bun.env.HOST!,
-    port: parseInt(Bun.env.PORT!)
+  fetch: app.fetch,
+  port: parseInt(Bun.env.PORT!)
 })
 
-console.log("Listening on http://" + Bun.env.HOST! + ":" + Bun.env.PORT!)
+console.log("Listening on http://localhost:" + Bun.env.PORT!)

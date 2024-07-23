@@ -1,5 +1,8 @@
-import type { Role } from "@prisma/client";
-import prisma from "../lib/prisma";
+import { db } from "../db";
+import { users } from "../db/schema";
+import { Role } from "./../db/schema"
+import { eq, or } from "drizzle-orm";
+
 import passwordManager from "../lib/passwordManager";
 
 type GetUserArgs = {
@@ -9,32 +12,34 @@ type GetUserArgs = {
 }
 
 export async function getUser({ id, username, email }: GetUserArgs) {
-    return await prisma.user.findFirst({
-        where: {
-            OR: [
-                { id },
-                { username },
-                { email }
-            ]
-        }
+    const user = await db.query.users.findFirst({
+        where: or(
+            eq(users.id, id || 0),
+            eq(users.username, username || ""),
+            eq(users.email, email || "")
+        )
     })
+    
+    return user
 }
 
 type CreateUserArgs = {
     username: string
     email: string
     password: string
-    role?: Role
+    role?: typeof Role.enumValues[number]
     image?: string
 }
 export async function createUser(data: CreateUserArgs) {
     const hashedPassword = await passwordManager.hash(data.password)
 
-    return await prisma.user.create({
-        data: {
-            ...data,
-            password: hashedPassword,
-            role: data.role ?? "USER"
-        }
-    })
+    const newUser = await db.insert(users).values({
+        username: data.username,
+        email: data.email,
+        password: hashedPassword,
+        role: data.role || "user",
+        image: data.image
+    }).returning()
+
+    return newUser[0]
 }

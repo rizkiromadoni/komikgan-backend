@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
-import users from "./routes/users"
+import userRoutes from "./routes/users"
 
 const app = new Hono()
 
@@ -9,9 +9,10 @@ app.get("/", (c) => {
 })
 
 const routes = app
-.route("/users", users)
+.route("/users", userRoutes)
 
 app.onError((error, c) => {
+  console.log(error)
   if (error instanceof HTTPException) {
     return c.json({
         status: "fail",

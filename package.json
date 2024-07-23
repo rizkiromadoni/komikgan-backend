@@ -4,18 +4,23 @@
   "type": "module",
   "scripts": {
     "start": "bun run index.ts",
-    "dev": "bun run --watch --hot index.ts"
+    "dev": "bun run --watch --hot index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run ./server/db/migrate",
+    "db:update": "bun db:generate && bun db:migrate"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "^5.17.0"
+    "@types/pg": "^8.11.6",
+    "drizzle-kit": "^0.23.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
-    "@prisma/client": "5.17.0",
-    "hono": "^4.5.1"
+    "drizzle-orm": "^0.32.0",
+    "hono": "^4.5.1",
+    "pg": "^8.12.0"
   }
 }
