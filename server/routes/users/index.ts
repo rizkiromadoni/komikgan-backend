@@ -32,6 +32,43 @@ const userRoutes = new Hono()
     }
 )
 
+.patch("/me",
+    zValidator("json", UserSchema.UpdateProfileSchema),
+    authMiddleware(),
+    async (c) => {
+        const { id } = c.get("user")
+        const payload = c.req.valid("json")
+
+        const user = await getUser({ id })
+        if (!user) throw new InvariantError("User not found")
+
+        if (payload.username || payload.email) {
+            const isExist = await getUser({ username: payload.username, email: payload.email })
+            if (isExist && isExist.id !== id) throw new InvariantError("User already exist")
+        }
+
+        const updatedUser = await db
+            .update(users)
+            .set({
+                username: payload.username,
+                email: payload.email,
+                password: payload.password ? await Bun.password.hash(payload.password, "bcrypt") : undefined,
+                image: payload.image
+            })
+            .where(eq(users.id, id))
+            .returning()
+
+        return c.json({
+            status: "success",
+            data: {
+                id: updatedUser[0].id,
+                username: updatedUser[0].username,
+                email: updatedUser[0].email
+            }
+        })
+    }
+)
+
 .post("/register",
     zValidator("json", UserSchema.RegisterUserSchema),
     async (c) => {
