@@ -7,8 +7,33 @@ import { InvariantError } from "../../lib/error"
 import { createUser, getUser } from "../../models/userModel"
 import { db } from "../../db"
 import { count, eq } from "drizzle-orm"
+import { jwt, type JwtVariables } from "hono/jwt"
+import authMiddleware from "../../middleware/authMiddleware"
 
-const userRoutes = new Hono()
+type Variables = JwtVariables
+
+const userRoutes = new Hono<{ Variables: Variables }>()
+
+.get("/me",
+    authMiddleware(),
+    async (c) => {
+        const { id } = c.get("jwtPayload")
+
+        const user = await getUser({ id })
+        if (!user) throw new InvariantError("User not found")
+
+        return c.json({
+            status: "success",
+            data: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                image: user.image,
+            }
+        })
+    }
+)
 
 .post("/register",
     zValidator("json", UserSchema.RegisterUserSchema),

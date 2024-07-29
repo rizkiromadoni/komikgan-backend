@@ -6,6 +6,7 @@ import { AuthenticationError } from "../../lib/error";
 import passwordManager from "../../lib/passwordManager";
 import tokenManager from "../../lib/tokenManager";
 import redis from "../../lib/redis";
+import { getCookie, setCookie } from "hono/cookie";
 
 const authRoutes = new Hono()
 
@@ -30,6 +31,15 @@ const authRoutes = new Hono()
 
         await redis.set(`refreshToken:${user.id}`, refreshToken)
 
+        setCookie(c, "accessToken", accessToken, {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+        setCookie(c, "refreshToken", refreshToken, {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+
         return c.json({
             status: "success",
             data: { accessToken, refreshToken }
@@ -38,9 +48,9 @@ const authRoutes = new Hono()
 )
 
 .put("/",
-    zValidator("json", AuthSchema.RefreshTokenSchema),
     async (c) => {
-        const { refreshToken } = c.req.valid("json")
+        const refreshToken = getCookie(c, "refreshToken")
+        if (!refreshToken) throw new AuthenticationError("Unauthenticated")
 
         const payload = await tokenManager.verifyRefreshToken(refreshToken) as any
         if (!payload) throw new AuthenticationError("Invalid refresh token")
@@ -56,6 +66,15 @@ const authRoutes = new Hono()
 
         await redis.set(`refreshToken:${user.id}`, newRefreshToken)
 
+        setCookie(c, "accessToken", accessToken, {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+        setCookie(c, "refreshToken", newRefreshToken, {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+
         return c.json({
             status: "success",
             data: { accessToken, refreshToken: newRefreshToken }
@@ -64,14 +83,23 @@ const authRoutes = new Hono()
 )
 
 .delete("/",
-    zValidator("json", AuthSchema.RefreshTokenSchema),
     async (c) => {
-        const { refreshToken } = c.req.valid("json")
+        const refreshToken = getCookie(c, "refreshToken")
+        if (!refreshToken) return c.json({ status: "success", message: "Logout success" })
 
         const payload = await tokenManager.verifyRefreshToken(refreshToken) as any
-        if (!payload) throw new AuthenticationError("Invalid refresh token")
+        if (!payload) return c.json({ status: "success", message: "Logout success" })
 
         await redis.set(`refreshToken:${payload.id}`, "")
+        setCookie(c, "accessToken", "", {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+        setCookie(c, "refreshToken", "", {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+
         return c.json({ status: "success", message: "Logout success" })
     }
 )

@@ -2,8 +2,16 @@ import { Hono } from "hono"
 import { HTTPException } from "hono/http-exception"
 import userRoutes from "./routes/users"
 import authRoutes from "./routes/authentications"
+import { cors } from "hono/cors"
+import { logger } from "hono/logger"
 
 const app = new Hono()
+
+app.use("*", logger())
+app.use("*", cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true
+}))
 
 app.get("/", (c) => {
   return c.text("Hello, World!")
