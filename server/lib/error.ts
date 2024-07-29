@@ -10,7 +10,7 @@ export class AuthenticationError extends HTTPException {
     super(401, { message })
   }
 }
-export class Authorization extends HTTPException {
+export class AuthorizationError extends HTTPException {
   constructor(message: string) {
     super(403, { message })
   }
