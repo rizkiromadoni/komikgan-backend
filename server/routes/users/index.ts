@@ -7,17 +7,14 @@ import { InvariantError } from "../../lib/error"
 import { createUser, getUser } from "../../models/userModel"
 import { db } from "../../db"
 import { count, eq } from "drizzle-orm"
-import { jwt, type JwtVariables } from "hono/jwt"
 import authMiddleware from "../../middleware/authMiddleware"
 
-type Variables = JwtVariables
-
-const userRoutes = new Hono<{ Variables: Variables }>()
+const userRoutes = new Hono()
 
 .get("/me",
     authMiddleware(),
     async (c) => {
-        const { id } = c.get("jwtPayload")
+        const { id } = c.get("user")
 
         const user = await getUser({ id })
         if (!user) throw new InvariantError("User not found")
