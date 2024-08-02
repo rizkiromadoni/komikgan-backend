@@ -1,11 +1,14 @@
-import { Hono } from "hono"
+import { OpenAPIHono } from "@hono/zod-openapi"
+import { apiReference } from '@scalar/hono-api-reference'
+
 import { HTTPException } from "hono/http-exception"
-import userRoutes from "./routes/users"
-import authRoutes from "./routes/authentications"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 
-const app = new Hono()
+import authHandler from "./handlers/authHandler"
+import userHandler from "./handlers/userHandler"
+
+const app = new OpenAPIHono()
 
 app.use("*", logger())
 app.use("*", cors({
@@ -13,13 +16,38 @@ app.use("*", cors({
   credentials: true
 }))
 
+app.openAPIRegistry.registerComponent('securitySchemes', 'JWT', {
+  type: "apiKey",
+  in: "cookie",
+  name: "accessToken",
+  description: "JWT access token",
+})
+
 app.get("/", (c) => {
   return c.text("Hello, World!")
 })
 
 const routes = app
-.route("/users", userRoutes)
-.route("/authentications", authRoutes)
+.route("/users", userHandler)
+.route("/authentications", authHandler)
+
+app.doc('/doc', {
+  openapi: '3.0.0',
+  info: {
+    version: '1.0.0',
+    title: 'Komikgan API',
+    description: 'Komikgan API documentation',
+  },
+})
+
+app.get(
+  '/docs',
+  apiReference({
+    spec: {
+      url: '/doc',
+    },
+  }),
+)
 
 app.onError((error, c) => {
   console.log(error)

@@ -1,16 +1,12 @@
-import { getCookie } from "hono/cookie"
 import { createMiddleware } from "hono/factory"
+import type { Env } from "../factory"
+import { getCookie } from "hono/cookie"
+
 import { AuthenticationError, AuthorizationError } from "../lib/error"
 import tokenManager from "../lib/tokenManager"
 
 const authMiddleware = (disallowRoles: string[] = []) =>
-  createMiddleware<{Variables: {
-    user: {
-        id: number,
-        role: string,
-        exp: number
-    }
-  }}>(async (c, next) => {
+  createMiddleware<Env>(async (c, next) => {
     const accessToken = getCookie(c, "accessToken")
     if (!accessToken) throw new AuthenticationError("Unauthenticated")
 
