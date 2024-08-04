@@ -46,14 +46,14 @@ const UserSchema = {
   },
   GetUsersSchema: {
     query: z.object({
-      cursor: z.coerce.number().optional(),
+      page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
       role: z.enum(["user", "admin", "superadmin"]).optional().nullish()
     }),
     response: z.object({
       status: z.string().default("success"),
       data: z.object({
-        nextCursor: z.number().nullish(),
+        totalPages: z.number(),
         data: z.array(z.object({
           id: z.number(),
           username: z.string(),

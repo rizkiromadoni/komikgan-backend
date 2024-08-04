@@ -1,6 +1,6 @@
 import { deleteUserRoute, getUserRoute, updateUserRoute } from "./../routes/userRoute"
 import { OpenAPIHono } from "@hono/zod-openapi"
-import { count, eq } from "drizzle-orm"
+import { count, desc, eq } from "drizzle-orm"
 
 import { createUser, deleteUser, getUser, updateUser } from "../models/userModel"
 import { db } from "../db"
@@ -112,8 +112,11 @@ const userHandler = new OpenAPIHono<Env>()
   })
 
   .openapi(getUsersRoute, async (c) => {
-    const { limit, cursor, role } = c.req.valid("query")
-    const paginatedLimit = limit ? limit + 1 : 10 + 1
+    const query = c.req.valid("query")
+
+    const limit = query.limit || 10
+    const page = query.page || 1
+
 
     const results = await db.query.users.findMany({
       columns: {
@@ -125,20 +128,21 @@ const userHandler = new OpenAPIHono<Env>()
         createdAt: true,
         updatedAt: true
       },
-      ...withCursorPagination({
-        where: role ? eq(users.role, role) : undefined,
-        limit: paginatedLimit,
-        cursors: [[users.id, "desc", cursor || undefined]]
-      })
+      where: query.role ? eq(users.role, query.role) : undefined,
+      orderBy: [desc(users.id)],
+      limit,
+      offset: (page - 1) * limit
     })
+
+    const counts = await db
+      .select({ count: count() })
+      .from(users)
+      .where(query.role ? eq(users.role, query.role) : undefined)
 
     return c.json({
         status: "success",
         data: {
-          nextCursor:
-            results.length >= paginatedLimit
-              ? results[results.length - 2].id
-              : null,
+          totalPages: Math.ceil(counts[0].count / limit),
           data: results
         }
       }, 200)
