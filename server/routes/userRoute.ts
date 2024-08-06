@@ -128,6 +128,36 @@ export const getUserRoute = createRoute({
     }
 })
 
+export const createUserRoute = createRoute({
+    path: "/",
+    method: "post",
+    tags: ["users"],
+    security: [{ JWT: [] }],
+    middleware: [authMiddleware(["user"])],
+    description: "Create user",
+    request: {
+        body: {
+            content: {
+                "application/json": {
+                    schema: UserSchema.CreateUserSchema.requestBody
+                }
+            }
+        }
+    },
+    responses: {
+        200: {
+            description: "success",
+            content: {
+                "application/json": {
+                    schema: UserSchema.CreateUserSchema.response
+                }
+            }
+        },
+        401: errorRoute[401],
+        403: errorRoute[403]
+    }
+})
+
 export const updateUserRoute = createRoute({
     method: "patch",
     path: "/:username",

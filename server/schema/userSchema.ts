@@ -83,6 +83,23 @@ const UserSchema = {
       })
     })
   },
+  CreateUserSchema: {
+    requestBody: z.object({
+      username: z.string().min(4).max(20),
+      email: z.string().email(),
+      password: z.string().min(4),
+      role: z.enum(["user", "admin", "superadmin"])
+    }),
+    response: z.object({
+      status: z.string().default("success"),
+      data: z.object({
+        id: z.number(),
+        username: z.string(),
+        email: z.string(),
+        role: z.string()
+      })
+    })
+  },
   UpdateUserSchema: {
     requestParams: z.object({
       username: z.string()

@@ -1,4 +1,4 @@
-import { deleteUserRoute, getUserRoute, updateUserRoute } from "./../routes/userRoute"
+import { createUserRoute, deleteUserRoute, getUserRoute, updateUserRoute } from "./../routes/userRoute"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { count, desc, eq } from "drizzle-orm"
 
@@ -164,6 +164,32 @@ const userHandler = new OpenAPIHono<Env>()
         role: user.role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
+      }
+    }, 200)
+  })
+
+  .openapi(createUserRoute, async (c) => {
+    const payload = c.req.valid("json")
+    const { role } = c.get("user")
+
+    if (payload.role !== "user" && role !== "superadmin") {
+      throw new AuthorizationError("You are not allowed to assign user role")
+    }
+
+    const isExist = await getUser({
+      username: payload.username,
+      email: payload.email
+    })
+    if (isExist) throw new InvariantError("User already exist")
+
+    const user = await createUser({ ...payload, role: payload.role || "user" })
+    return c.json({
+      status: "success",
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
       }
     }, 200)
   })
