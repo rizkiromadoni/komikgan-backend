@@ -1,6 +1,16 @@
 import { z } from "@hono/zod-openapi"
 
 const GenreSchema = {
+    GetAllGenres: {
+        response: z.object({
+            status: z.string().default("success"),
+            data: z.array(z.object({
+                id: z.number(),
+                name: z.string(),
+                slug: z.string()
+            }))
+        })
+    },
     GetGenresSchema: {
         query: z.object({
             page: z.coerce.number().optional(),

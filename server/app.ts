@@ -7,6 +7,7 @@ import { logger } from "hono/logger"
 
 import authHandler from "./handlers/authHandler"
 import userHandler from "./handlers/userHandler"
+import genreHandler from "./handlers/genreHandler"
 
 const app = new OpenAPIHono()
 
@@ -28,6 +29,7 @@ app.get("/", (c) => {
 })
 
 const routes = app
+.route("/genres", genreHandler)
 .route("/users", userHandler)
 .route("/authentications", authHandler)
 

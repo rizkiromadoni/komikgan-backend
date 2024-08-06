@@ -3,6 +3,23 @@ import authMiddleware from "../middleware/authMiddleware";
 import GenreSchema from "../schema/genreSchema";
 import errorRoute from "./errorRoute";
 
+export const GetAllGenresRoute = createRoute({
+    path: "/all",
+    method: "get",
+    tags: ["genres"],
+    description: "Get all genres",
+    responses: {
+        200: {
+            description: "success",
+            content: {
+                "application/json": {
+                    schema: GenreSchema.GetAllGenres.response
+                }
+            }
+        }
+    }
+})
+
 export const GetGenresRoute = createRoute({
     path: "/",
     method: "get",
