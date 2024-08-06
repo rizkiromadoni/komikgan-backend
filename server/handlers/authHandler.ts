@@ -3,15 +3,15 @@ import { loginRoute, logoutRoute, refreshTokenRoute } from "../routes/authentica
 import redis from "../lib/redis"
 import { getCookie, setCookie } from "hono/cookie"
 import tokenManager from "../lib/tokenManager"
-import { getUser } from "../models/userModel"
 import passwordManager from "../lib/passwordManager"
 import { AuthenticationError } from "../lib/error"
+import userModel from "../models/userModel"
 
 const authHandler = new OpenAPIHono()
 
 authHandler.openapi(loginRoute, async (c) => {
   const payload = c.req.valid("json")
-  const user = await getUser({ email: payload.email })
+  const user = await userModel.getUser({ email: payload.email })
   if (!user) throw new AuthenticationError("email or password is incorrect")
 
   const isMatch = await passwordManager.verify(payload.password, user.password)
@@ -49,7 +49,7 @@ authHandler.openapi(refreshTokenRoute, async (c) => {
     const payload = await tokenManager.verifyRefreshToken(refreshToken) as any
     if (!payload) throw new AuthenticationError("Invalid refresh token")
 
-    const user = await getUser({ id: payload.id })
+    const user = await userModel.getUser({ id: payload.id })
     if (!user) throw new AuthenticationError("Invalid refresh token")
 
     const storedRefreshToken = await redis.get(`refreshToken:${user.id}`)
