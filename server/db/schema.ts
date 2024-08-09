@@ -61,8 +61,8 @@ export const seriesRelations = relations(series, ({ one, many }) => ({
 }))
 
 export const seriesToGenres = pgTable("series_to_genres", {
-    serieId: integer("serie_id").notNull().references(() => series.id),
-    genreId: integer("genre_id").notNull().references(() => genres.id),
+    serieId: integer("serie_id").notNull().references(() => series.id, {onDelete: "cascade"}),
+    genreId: integer("genre_id").notNull().references(() => genres.id, {onDelete: "cascade"}),
 }, (t) => ({
     pk: primaryKey(({ columns: [t.serieId, t.genreId] }))
 }))
