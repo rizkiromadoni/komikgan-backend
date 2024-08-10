@@ -1,3 +1,7 @@
+import path from "path"
+import fs from "fs-extra"
+import sharp from "sharp";
+
 export function slugify(text: string) {
     return text
         .toString()
@@ -7,4 +11,19 @@ export function slugify(text: string) {
         .replace(/--+/g, "-")
         .replace(/^-+/, "")
         .replace(/-+$/, "")
+}
+
+export async function saveBase64(base64: string, filename: string) {
+    const baseDir = "/uploads/series"
+
+    const base64Data = base64.split(";base64,").pop();
+    const filepath = path.join(process.cwd(), baseDir, filename)
+
+    await fs.ensureDir(path.dirname(filepath))
+
+    await sharp(Buffer.from(base64Data as string, "base64")).webp({ quality: 80 }).toFile(filepath)
+
+    // await fs.writeFile(filepath, base64Data as string, { encoding: "base64" })
+
+    return new URL(path.join(baseDir, filename), process.env.APP_URL).href
 }

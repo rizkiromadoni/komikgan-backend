@@ -8,6 +8,8 @@ import { logger } from "hono/logger"
 import authHandler from "./handlers/authHandler"
 import userHandler from "./handlers/userHandler"
 import genreHandler from "./handlers/genreHandler"
+import serieHandler from "./handlers/serieHandler"
+import { serveStatic } from "hono/bun"
 
 const app = new OpenAPIHono()
 
@@ -16,6 +18,7 @@ app.use("*", cors({
   origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true
 }))
+
 
 app.openAPIRegistry.registerComponent('securitySchemes', 'JWT', {
   type: "apiKey",
@@ -28,10 +31,13 @@ app.get("/", (c) => {
   return c.text("Hello, World!")
 })
 
+app.get("/uploads/*", serveStatic({ root: "./" }))
+
 const routes = app
-.route("/genres", genreHandler)
 .route("/users", userHandler)
 .route("/authentications", authHandler)
+.route("/genres", genreHandler)
+.route("/series", serieHandler)
 
 app.doc('/doc', {
   openapi: '3.0.0',

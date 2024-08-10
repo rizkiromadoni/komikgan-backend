@@ -51,7 +51,7 @@ const userModel = {
             offset: (page - 1) * limit
           })
       
-          const counts = await db
+        const counts = await db
             .select({ count: count() })
             .from(users)
             .where(role ? eq(users.role, role) : undefined)

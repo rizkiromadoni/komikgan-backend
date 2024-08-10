@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/fs-extra": "^11.0.4",
     "@types/pg": "^8.11.6",
     "drizzle-kit": "^0.23.0"
   },
@@ -23,8 +24,10 @@
     "@scalar/hono-api-reference": "^0.5.120",
     "drizzle-orm": "^0.32.0",
     "drizzle-pagination": "^1.0.10",
+    "fs-extra": "^11.2.0",
     "hono": "^4.5.1",
     "ioredis": "^5.4.1",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "sharp": "^0.33.4"
   }
 }
