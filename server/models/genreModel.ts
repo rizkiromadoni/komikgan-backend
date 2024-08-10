@@ -1,6 +1,6 @@
 import { count, desc, eq } from "drizzle-orm"
 import { db } from "../db"
-import { genres } from "../db/schema"
+import { genres, seriesToGenres } from "../db/schema"
 import { slugify } from "../lib/utils"
 
 type GetGenresArgs = {
@@ -10,14 +10,14 @@ type GetGenresArgs = {
 
 const genreModel = {
     getAllGenres: async () => {
-        return db.query.genres.findMany({
-            columns: {
-                id: true,
-                name: true,
-                slug: true
-            },
-            orderBy: [desc(genres.name)]
-        })
+        const results = await db.select({
+            id: genres.id,
+            name: genres.name,
+            slug: genres.slug,
+            count: count(seriesToGenres.serieId)
+        }).from(genres).leftJoin(seriesToGenres, eq(seriesToGenres.genreId, genres.id)).groupBy(genres.id)
+
+        return results
     },
     getGenres: async ({ page = 1, limit = 10 }: GetGenresArgs) => {
         const results = await db.query.genres.findMany({

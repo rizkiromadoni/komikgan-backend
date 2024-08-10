@@ -7,7 +7,8 @@ const GenreSchema = {
             data: z.array(z.object({
                 id: z.number(),
                 name: z.string(),
-                slug: z.string()
+                slug: z.string(),
+                count: z.number()
             }))
         })
     },
