@@ -1,4 +1,4 @@
-import { count, desc, eq } from "drizzle-orm"
+import { and, count, desc, eq, ilike } from "drizzle-orm"
 import { db } from "../db"
 import { genres, series, seriesToGenres } from "../db/schema"
 import { slugify } from "../lib/utils"
@@ -7,7 +7,8 @@ import genreModel from "./genreModel"
 type GetSeriesArgs = {
     page?: number
     limit?: number
-    status?: "published" | "draft"
+    status?: "published" | "draft",
+    search?: string
 }
 
 type CreateSerieArgs = {
@@ -57,7 +58,7 @@ const serieModel = {
 
         return results
     },
-    getSeries: async ({ page = 1, limit = 10, status = "published" }: GetSeriesArgs) => {
+    getSeries: async ({ page = 1, limit = 10, status, search }: GetSeriesArgs) => {
         const results = await db.query.series.findMany({
             columns: {
                 id: true,
@@ -69,7 +70,10 @@ const serieModel = {
                 createdAt: true,
                 updatedAt: true  
             },
-            where: status ? eq(series.status, status) : undefined,
+            where: and(
+                status ? eq(series.status, status) : undefined,
+                search ? ilike(series.title, `%${search}%`) : undefined
+            ),
             orderBy: [desc(series.updatedAt)],
             limit: limit,
             offset: (page - 1) * limit,
@@ -95,9 +99,33 @@ const serieModel = {
         }
     },
     getSerie: async (identifier: string | number) => {
-        return await db.query.series.findFirst({
-            where: typeof identifier === "number" ? eq(series.id, identifier) : eq(series.slug, identifier)
+        const result = await db.query.series.findFirst({
+            where: typeof identifier === "number" ? eq(series.id, identifier) : eq(series.slug, identifier),
+            with: {
+                seriesToGenres: {
+                    with: {
+                        genre: true
+                    }
+                },
+                user: {
+                    columns: {
+                        id: true,
+                        username: true,
+                        role: true
+                    }
+                }
+            }
         })
+
+        if (!result) return null
+        const genres = result.seriesToGenres.map(s => s.genre)
+
+        return {
+            ...result,
+            genres,
+            seriesToGenres: undefined,
+            userId: undefined
+        }
     },
     createSerie: async (data: CreateSerieArgs) => {
         const result = await db

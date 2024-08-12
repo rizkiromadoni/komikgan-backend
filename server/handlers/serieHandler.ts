@@ -17,9 +17,9 @@ const serieHandler = new OpenAPIHono<Env>()
 })
 
 .openapi(getSeriesRoute, async (c) => {
-    const { page, limit, status } = c.req.valid("query")
+    const { page, limit, status, search } = c.req.valid("query")
 
-    const results = await serieModel.getSeries({ page, limit, status })
+    const results = await serieModel.getSeries({ page, limit, status, search })
 
     return c.json({
         status: "success",
@@ -35,7 +35,12 @@ const serieHandler = new OpenAPIHono<Env>()
 
     return c.json({
         status: "success",
-        data: serie
+        data: {
+            ...serie,
+            user: {
+                username: serie.user.username
+            }
+        }
     }, 200)
 })
 

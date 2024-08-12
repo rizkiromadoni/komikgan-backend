@@ -15,7 +15,8 @@ const SerieSchema = {
         query: z.object({
             page: z.coerce.number().optional(),
             limit: z.coerce.number().optional(),
-            status: z.enum(["draft", "published"]).optional()
+            status: z.enum(["draft", "published"]).optional(),
+            search: z.string().optional()
         }),
         response: z.object({
             status: z.string().default("success"),
@@ -59,10 +60,18 @@ const SerieSchema = {
                 author: z.string().nullish(),
                 artist: z.string().nullish(),
                 serialization: z.string().nullish(),
-                genres: z.array(z.string()).nullish(),
-                userId: z.number(),
+                genres: z.array(z.object({
+                    id: z.number(),
+                    name: z.string(),
+                    slug: z.string(),
+                    createdAt: z.date(),
+                    updatedAt: z.date()
+                })),
                 createdAt: z.date(),
-                updatedAt: z.date()
+                updatedAt: z.date(),
+                user: z.object({
+                    username: z.string()
+                })
             })
         })
     },
