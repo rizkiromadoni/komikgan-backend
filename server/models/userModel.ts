@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { users } from "../db/schema";
 import { Role } from "./../db/schema"
-import { count, desc, eq, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 
 import passwordManager from "../lib/passwordManager";
 
@@ -9,6 +9,7 @@ type GetUsersArgs = {
     limit?: number
     page?: number
     role?: typeof Role.enumValues[number]
+    search?: string
 }
 
 type GetUserArgs = {
@@ -34,7 +35,12 @@ type UpdateUserArgs = {
 }
 
 const userModel = {
-    getUsers: async ({ limit = 10, page = 1, role }: GetUsersArgs) => {
+    getUsers: async ({ limit = 10, page = 1, role, search }: GetUsersArgs) => {
+        const whereClause = and(
+            role ? eq(users.role, role) : undefined,
+            search ? ilike(users.username, `%${search}%`) : undefined
+        )
+
         const results = await db.query.users.findMany({
             columns: {
               id: true,
@@ -45,7 +51,7 @@ const userModel = {
               createdAt: true,
               updatedAt: true
             },
-            where: role ? eq(users.role, role) : undefined,
+            where: whereClause,
             orderBy: [desc(users.id)],
             limit: limit,
             offset: (page - 1) * limit
@@ -54,7 +60,7 @@ const userModel = {
         const counts = await db
             .select({ count: count() })
             .from(users)
-            .where(role ? eq(users.role, role) : undefined)
+            .where(whereClause)
     
         return {
             totalPages: Math.ceil(counts[0].count / limit),

@@ -17,9 +17,9 @@ genreHandler.openapi(GetAllGenresRoute, async (c) => {
 })
 
 genreHandler.openapi(GetGenresRoute, async (c) => {
-    const { page, limit } = c.req.valid("query")
+    const { page, limit, search } = c.req.valid("query")
 
-    const results = await genreModel.getGenres({ page, limit })
+    const results = await genreModel.getGenres({ page, limit, search })
 
     return c.json({
         status: "success",

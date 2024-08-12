@@ -1,4 +1,4 @@
-import { count, desc, eq } from "drizzle-orm"
+import { and, count, desc, eq, ilike } from "drizzle-orm"
 import { db } from "../db"
 import { genres, seriesToGenres } from "../db/schema"
 import { slugify } from "../lib/utils"
@@ -6,6 +6,7 @@ import { slugify } from "../lib/utils"
 type GetGenresArgs = {
     limit?: number
     page?: number
+    search?: string
 }
 
 const genreModel = {
@@ -19,8 +20,9 @@ const genreModel = {
 
         return results
     },
-    getGenres: async ({ page = 1, limit = 10 }: GetGenresArgs) => {
+    getGenres: async ({ page = 1, limit = 10, search }: GetGenresArgs) => {
         const results = await db.query.genres.findMany({
+            where: search ? ilike(genres.name, `%${search}%`) : undefined,
             orderBy: [desc(genres.id)],
             limit: limit,
             offset: (page - 1) * limit
@@ -29,6 +31,7 @@ const genreModel = {
         const counts = await db
             .select({ count: count() })
             .from(genres)
+            .where(search ? ilike(genres.name, `%${search}%`) : undefined)
 
         return {
             totalPages: Math.ceil(counts[0].count / limit),

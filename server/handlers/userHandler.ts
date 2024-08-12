@@ -104,9 +104,9 @@ const userHandler = new OpenAPIHono<Env>()
   })
 
   .openapi(getUsersRoute, async (c) => {
-    const { limit, page, role } = c.req.valid("query")
+    const { limit, page, role, search } = c.req.valid("query")
 
-    const results = await userModel.getUsers({ limit, page, role })
+    const results = await userModel.getUsers({ limit, page, role, search })
 
     return c.json({
         status: "success",

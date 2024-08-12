@@ -48,7 +48,8 @@ const UserSchema = {
     query: z.object({
       page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
-      role: z.enum(["user", "admin", "superadmin"]).optional()
+      role: z.enum(["user", "admin", "superadmin"]).optional(),
+      search: z.string().optional()
     }),
     response: z.object({
       status: z.string().default("success"),

@@ -15,7 +15,8 @@ const GenreSchema = {
     GetGenresSchema: {
         query: z.object({
             page: z.coerce.number().optional(),
-            limit: z.coerce.number().optional()
+            limit: z.coerce.number().optional(),
+            search: z.string().optional()
         }),
         response: z.object({
             status: z.string().default("success"),
