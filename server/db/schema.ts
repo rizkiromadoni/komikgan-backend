@@ -16,7 +16,8 @@ export const users = pgTable("users", {
 })
 
 export const usersRelations = relations(users, ({ many }) => ({
-    series: many(series)
+    series: many(series),
+    chapters: many(chapters)
 }))
 
 export const genres = pgTable("genres", {
@@ -57,7 +58,8 @@ export const seriesRelations = relations(series, ({ one, many }) => ({
         fields: [series.userId],
         references: [users.id]
     }),
-    seriesToGenres: many(seriesToGenres)
+    seriesToGenres: many(seriesToGenres),
+    chapters: many(chapters)
 }))
 
 export const seriesToGenres = pgTable("series_to_genres", {
@@ -75,5 +77,29 @@ export const seriesToGenresRelations = relations(seriesToGenres, ({ one }) => ({
     genre: one(genres, {
         fields: [seriesToGenres.genreId],
         references: [genres.id]
+    })
+}))
+
+export const chapters = pgTable("chapters", {
+    id: serial("id").primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    chapter: varchar("chapter", { length: 255 }).notNull(),
+    content: text("content").notNull(),
+    serieId: integer("serie_id").notNull().references(() => series.id, {onDelete: "cascade"}),
+    userId: integer("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
+
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow().$onUpdate(() => new Date()), 
+})
+
+export const chaptersRelations = relations(chapters, ({ one }) => ({
+    serie: one(series, {
+        fields: [chapters.serieId],
+        references: [series.id]
+    }),
+    user: one(users, {
+        fields: [chapters.userId],
+        references: [users.id]
     })
 }))
