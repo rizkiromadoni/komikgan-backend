@@ -1,11 +1,22 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import { createSerieRoute, deleteSerieRoute, getAllSeriesRoute, getSerieRoute, getSeriesRoute, updateSerieRoute } from "../routes/serieRoute"
+import { createSerieRoute, deleteSerieRoute, getAllSeriesRoute, getLatestUpdateRoute, getSerieRoute, getSeriesRoute, updateSerieRoute } from "../routes/serieRoute"
 import type { Env } from "../factory"
 import serieModel from "../models/serieModel"
 import { saveBase64, slugify } from "../lib/utils"
 import { InvariantError, NotFoundError } from "../lib/error"
 
 const serieHandler = new OpenAPIHono<Env>()
+
+.openapi(getLatestUpdateRoute, async (c) => {
+    const { page, limit } = c.req.valid("query")
+
+    const results = await serieModel.getLatestUpdate({ page, limit })
+
+    return c.json({
+        status: "success",
+        data: results
+    }, 200)
+})
 
 .openapi(getAllSeriesRoute, async (c) => {
     const results = await serieModel.getAllSeries()

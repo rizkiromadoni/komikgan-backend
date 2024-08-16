@@ -3,6 +3,26 @@ import SerieSchema from "../schema/serieSchema";
 import authMiddleware from "../middleware/authMiddleware";
 import errorRoute from "./errorRoute";
 
+export const getLatestUpdateRoute = createRoute({
+    path: "/latest",
+    method: "get",
+    tags: ["series"],
+    description: "Get latest updated series",
+    request: {
+        query: SerieSchema.GetLatestUpdate.query
+    },
+    responses: {
+        200: {
+            description: "success",
+            content: {
+                "application/json": {
+                    schema: SerieSchema.GetLatestUpdate.response
+                }
+            }
+        }
+    }
+})
+
 export const getAllSeriesRoute = createRoute({
     path: "/all",
     method: "get",

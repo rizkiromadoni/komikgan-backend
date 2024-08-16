@@ -1,6 +1,36 @@
 import { z } from "@hono/zod-openapi"
 
 const SerieSchema = {
+    GetLatestUpdate: {
+        query: z.object({
+            limit: z.coerce.number().optional(),
+            page: z.coerce.number().optional()
+        }),
+        response: z.object({
+            status: z.string().default("success"),
+            data: z.object({
+                totalPages: z.number(),
+                data: z.array(z.object({
+                    id: z.number(),
+                    title: z.string(),
+                    slug: z.string(),
+                    seriesType: z.string(),
+                    seriesStatus: z.string(),
+                    imageUrl: z.string().nullish(),
+                    createdAt: z.date(),
+                    updatedAt: z.date(),
+                    chapters: z.array(z.object({
+                        id: z.number(),
+                        title: z.string(),
+                        chapter: z.string(),
+                        slug: z.string(),
+                        createdAt: z.date(),
+                        updatedAt: z.date()
+                    }))
+                }))
+            })
+        })
+    },
     GetAllSeriesSchema: {
         response: z.object({
             status: z.string().default("success"),
