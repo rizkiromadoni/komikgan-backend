@@ -4,12 +4,13 @@ import { apiReference } from '@scalar/hono-api-reference'
 import { HTTPException } from "hono/http-exception"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
+import { serveStatic } from "hono/bun"
 
 import authHandler from "./handlers/authHandler"
 import userHandler from "./handlers/userHandler"
 import genreHandler from "./handlers/genreHandler"
 import serieHandler from "./handlers/serieHandler"
-import { serveStatic } from "hono/bun"
+import chapterHandler from "./handlers/chapterHandler"
 
 const app = new OpenAPIHono()
 
@@ -38,6 +39,7 @@ const routes = app
 .route("/authentications", authHandler)
 .route("/genres", genreHandler)
 .route("/series", serieHandler)
+.route("/chapters", chapterHandler)
 
 app.doc('/doc', {
   openapi: '3.0.0',

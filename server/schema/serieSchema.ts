@@ -32,7 +32,6 @@ const SerieSchema = {
                     createdAt: z.date(),
                     updatedAt: z.date(),
                     user: z.object({
-                        id: z.number(),
                         username: z.string(),
                         role: z.string()
                     })

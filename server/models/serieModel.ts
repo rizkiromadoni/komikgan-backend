@@ -80,7 +80,6 @@ const serieModel = {
             with: {
                 user: {
                     columns: {
-                        id: true,
                         username: true,
                         role: true
                     }
@@ -91,7 +90,10 @@ const serieModel = {
         const counts = await db
             .select({ count: count() })
             .from(series)
-            .where(status ? eq(series.status, status) : undefined)
+            .where(and(
+                status ? eq(series.status, status) : undefined,
+                search ? ilike(series.title, `%${search}%`) : undefined
+            ))
     
         return {
             totalPages: Math.ceil(counts[0].count / limit),

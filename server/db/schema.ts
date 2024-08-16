@@ -86,6 +86,7 @@ export const chapters = pgTable("chapters", {
     slug: varchar("slug", { length: 255 }).notNull(),
     chapter: varchar("chapter", { length: 255 }).notNull(),
     content: text("content").notNull(),
+    status: Status("status").notNull().default("draft"),
     serieId: integer("serie_id").notNull().references(() => series.id, {onDelete: "cascade"}),
     userId: integer("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
 
