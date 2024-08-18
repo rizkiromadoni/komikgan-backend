@@ -1,9 +1,10 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { type Env } from "../factory";
-import { CreateGenreRoute, DeleteGenreRoute, GetAllGenresRoute, GetGenreRoute, GetGenresRoute, UpdateGenreRoute } from "../routes/genreRoute";
+import { CreateGenreRoute, DeleteGenreRoute, GetAllGenresRoute, GetGenreRoute, GetGenreSeriesRoute, GetGenresRoute, UpdateGenreRoute } from "../routes/genreRoute";
 import genreModel from "../models/genreModel";
 import { slugify } from "../lib/utils";
-import { InvariantError } from "../lib/error";
+import { InvariantError, NotFoundError } from "../lib/error";
+import serieModel from "../models/serieModel";
 
 const genreHandler = new OpenAPIHono<Env>()
 
@@ -36,6 +37,29 @@ genreHandler.openapi(GetGenreRoute, async (c) => {
     return c.json({
         status: "success",
         data: genre
+    }, 200)
+})
+
+genreHandler.openapi(GetGenreSeriesRoute, async (c) => {
+    const { slug } = c.req.valid("param")
+    const { page, limit } = c.req.valid("query")
+
+    const genre = await genreModel.getGenre(slug)
+    if (!genre) throw new NotFoundError("Genre not found")
+
+    const results = await serieModel.getSeriesByGenre({ genreId: genre.id, page, limit })
+
+    return c.json({
+        status: "success",
+        data: {
+            totalPages: results.totalPages,
+            genre: {
+                id: genre.id,
+                name: genre.name,
+                slug: genre.slug
+            },
+            series: results.data
+        }
     }, 200)
 })
 

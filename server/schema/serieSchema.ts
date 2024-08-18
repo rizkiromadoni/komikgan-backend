@@ -58,13 +58,20 @@ const SerieSchema = {
                     slug: z.string(),
                     imageUrl: z.string().nullish(),
                     description: z.string().nullish(),
+                    seriesStatus: z.string(),
+                    seriesType: z.string(),
+                    rating: z.string().nullish(),
                     status: z.string(),
                     createdAt: z.date(),
                     updatedAt: z.date(),
                     user: z.object({
-                        username: z.string(),
-                        role: z.string()
-                    })
+                        username: z.string()
+                    }),
+                    genres: z.array(z.object({
+                        id: z.number(),
+                        name: z.string(),
+                        slug: z.string()
+                    }))
                 }))
             })
         })
@@ -92,6 +99,14 @@ const SerieSchema = {
                 genres: z.array(z.object({
                     id: z.number(),
                     name: z.string(),
+                    slug: z.string(),
+                    createdAt: z.date(),
+                    updatedAt: z.date()
+                })),
+                chapters: z.array(z.object({
+                    id: z.number(),
+                    title: z.string(),
+                    chapter: z.string(),
                     slug: z.string(),
                     createdAt: z.date(),
                     updatedAt: z.date()

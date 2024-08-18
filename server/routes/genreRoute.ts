@@ -60,6 +60,27 @@ export const GetGenreRoute = createRoute({
     }
 })
 
+export const GetGenreSeriesRoute = createRoute({
+    path: "/:slug/series",
+    method: "get",
+    tags: ["genres"],
+    description: "Get series by genre",
+    request: {
+        params: GenreSchema.GetGenreSeriesSchema.params,
+        query: GenreSchema.GetGenreSeriesSchema.query
+    },
+    responses: {
+        200: {
+            description: "success",
+            content: {
+                "application/json": {
+                    schema: GenreSchema.GetGenreSeriesSchema.response
+                }
+            }
+        }
+    }
+})
+
 export const CreateGenreRoute = createRoute({
     path: "/",
     method: "post",

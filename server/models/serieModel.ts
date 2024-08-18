@@ -1,6 +1,6 @@
-import { and, count, desc, eq, ilike } from "drizzle-orm"
+import { and, count, desc, eq, ilike, inArray } from "drizzle-orm"
 import { db } from "../db"
-import { chapters, genres, series, seriesToGenres } from "../db/schema"
+import { chapters, genres, series, seriesToGenres, users } from "../db/schema"
 import { slugify } from "../lib/utils"
 import genreModel from "./genreModel"
 
@@ -9,6 +9,7 @@ type GetSeriesArgs = {
   limit?: number
   status?: "published" | "draft"
   search?: string
+  genreId?: number
 }
 
 type CreateSerieArgs = {
@@ -107,19 +108,83 @@ const serieModel = {
 
     return results
   },
+  getSeriesByGenre: async ({ genreId, page = 1, limit = 9 }: { genreId: number, page?: number, limit?: number }) => {
+    const seriesIds = await db.select({
+      serieId: seriesToGenres.serieId
+    })
+    .from(seriesToGenres)
+    .where(eq(seriesToGenres.genreId, genreId))
+
+    const results = await db.query.series.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        imageUrl: true,
+        seriesStatus: true,
+        seriesType: true,
+        rating: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      where: and(
+        inArray(series.id, seriesIds.map((s) => s.serieId)),
+        eq(series.status, "published")
+      ),
+      orderBy: [desc(series.updatedAt)],
+      limit: limit,
+      offset: (page - 1) * limit,
+      with: {
+        seriesToGenres: {
+          with: { genre: {
+            columns: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          } }
+        },
+        user: {
+          columns: {
+            username: true
+          }
+        }
+      }
+    })
+
+    const mappedSeries = results.map((serie) => {
+      const genres = serie.seriesToGenres.map((s) => s.genre)
+      return {
+        ...serie,
+        genres,
+        seriesToGenres: undefined
+      }
+    })
+
+    return {
+      totalPages: Math.ceil(seriesIds.length / limit),
+      data: mappedSeries
+    }
+  },
   getSeries: async ({
     page = 1,
     limit = 10,
     status,
-    search
+    search,
+    genreId
   }: GetSeriesArgs) => {
     const results = await db.query.series.findMany({
       columns: {
         id: true,
         title: true,
         slug: true,
-        imageUrl: true,
         description: true,
+        imageUrl: true,
+        seriesStatus: true,
+        seriesType: true,
+        rating: true,
         status: true,
         createdAt: true,
         updatedAt: true
@@ -132,12 +197,29 @@ const serieModel = {
       limit: limit,
       offset: (page - 1) * limit,
       with: {
+        seriesToGenres: {
+          with: { genre: {
+            columns: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          } }
+        },
         user: {
           columns: {
-            username: true,
-            role: true
+            username: true
           }
         }
+      }
+    })
+
+    const mappedSeries = results.map((serie) => {
+      const genres = serie.seriesToGenres.map((s) => s.genre)
+      return {
+        ...serie,
+        genres,
+        seriesToGenres: undefined
       }
     })
 
@@ -153,7 +235,7 @@ const serieModel = {
 
     return {
       totalPages: Math.ceil(counts[0].count / limit),
-      data: results
+      data: mappedSeries
     }
   },
   getSerie: async (identifier: string | number) => {
@@ -170,10 +252,20 @@ const serieModel = {
         },
         user: {
           columns: {
-            id: true,
             username: true,
-            role: true
           }
+        },
+        chapters: {
+            where: eq(chapters.status, "published"),
+            orderBy: [desc(chapters.chapter)],
+            columns: {
+                id: true,
+                title: true,
+                slug: true,
+                chapter: true,
+                createdAt: true,
+                updatedAt: true
+            }
         }
       }
     })

@@ -4,6 +4,7 @@ import type { Env } from "../factory"
 import serieModel from "../models/serieModel"
 import { saveBase64, slugify } from "../lib/utils"
 import { InvariantError, NotFoundError } from "../lib/error"
+import genreModel from "../models/genreModel"
 
 const serieHandler = new OpenAPIHono<Env>()
 
