@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   komikgan:
-    container_name: komikgan
+    container_name: komikgan-backend
     build: .
     ports:
       - ${PORT}:${PORT}
@@ -13,7 +13,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:latest
+    image: postgres:16
     ports:
       - ${DB_PORT}:${DB_PORT}
     env_file:
@@ -26,7 +26,7 @@ services:
       - postgres_data:/var/lib/postgresql
 
   redis:
-    image: redis
+    image: redis:7.4
     ports:
       - 6379:6379
     volumes:
