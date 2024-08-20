@@ -96,6 +96,10 @@ const SerieSchema = {
                 author: z.string().nullish(),
                 artist: z.string().nullish(),
                 serialization: z.string().nullish(),
+                bookmarks: z.object({
+                    isBookmarked: z.boolean(),
+                    count: z.number()
+                }),
                 genres: z.array(z.object({
                     id: z.number(),
                     name: z.string(),

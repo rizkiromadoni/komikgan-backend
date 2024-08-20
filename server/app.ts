@@ -11,6 +11,7 @@ import userHandler from "./handlers/userHandler"
 import genreHandler from "./handlers/genreHandler"
 import serieHandler from "./handlers/serieHandler"
 import chapterHandler from "./handlers/chapterHandler"
+import bookmarkHandler from "./handlers/bookmarkHandler"
 
 const app = new OpenAPIHono()
 
@@ -40,6 +41,7 @@ const routes = app
 .route("/genres", genreHandler)
 .route("/series", serieHandler)
 .route("/chapters", chapterHandler)
+.route("/bookmarks", bookmarkHandler)
 
 app.doc('/doc', {
   openapi: '3.0.0',

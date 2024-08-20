@@ -17,7 +17,8 @@ export const users = pgTable("users", {
 
 export const usersRelations = relations(users, ({ many }) => ({
     series: many(series),
-    chapters: many(chapters)
+    chapters: many(chapters),
+    bookmarks: many(bookmarks)
 }))
 
 export const genres = pgTable("genres", {
@@ -59,7 +60,8 @@ export const seriesRelations = relations(series, ({ one, many }) => ({
         references: [users.id]
     }),
     seriesToGenres: many(seriesToGenres),
-    chapters: many(chapters)
+    chapters: many(chapters),
+    bookmarks: many(bookmarks)
 }))
 
 export const seriesToGenres = pgTable("series_to_genres", {
@@ -102,5 +104,23 @@ export const chaptersRelations = relations(chapters, ({ one }) => ({
     user: one(users, {
         fields: [chapters.userId],
         references: [users.id]
+    })
+}))
+
+export const bookmarks = pgTable("bookmarks", {
+    userId: integer("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
+    serieId: integer("serie_id").notNull().references(() => series.id, {onDelete: "cascade"}),
+}, (t) => ({
+    pk: primaryKey(({ columns: [t.userId, t.serieId] }))
+}))
+
+export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
+    user: one(users, {
+        fields: [bookmarks.userId],
+        references: [users.id]
+    }),
+    serie: one(series, {
+        fields: [bookmarks.serieId],
+        references: [series.id]
     })
 }))

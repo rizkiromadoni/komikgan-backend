@@ -5,6 +5,9 @@ import serieModel from "../models/serieModel"
 import { saveBase64, slugify } from "../lib/utils"
 import { InvariantError, NotFoundError } from "../lib/error"
 import genreModel from "../models/genreModel"
+import bookmarkModel from "../models/bookmarkModel"
+import { getCookie } from "hono/cookie"
+import tokenManager from "../lib/tokenManager"
 
 const serieHandler = new OpenAPIHono<Env>()
 
@@ -45,13 +48,25 @@ const serieHandler = new OpenAPIHono<Env>()
     const serie = await serieModel.getSerie(slug)
     if (!serie) throw new NotFoundError("Serie not found")
 
+    let userId: undefined | number = undefined
+    const accessToken = getCookie(c, "accessToken")
+    if (accessToken) {
+        const payload = await tokenManager.verifyAccessToken(accessToken) as any
+        if (payload) {
+            userId = payload.id
+        }
+    }
+
+    const serieBookmark = await bookmarkModel.getSeriesBookmarks({ serieId: serie.id, userId })
+
     return c.json({
         status: "success",
         data: {
             ...serie,
             user: {
                 username: serie.user.username
-            }
+            },
+            bookmarks: serieBookmark
         }
     }, 200)
 })

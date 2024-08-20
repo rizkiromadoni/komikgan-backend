@@ -24,7 +24,10 @@ const UserSchema = {
         username: z.string(),
         email: z.string(),
         role: z.string(),
-        image: z.string().nullish()
+        image: z.string().nullish(),
+        bookmarks: z.object({
+          count: z.number()
+        })
       })
     })
   },

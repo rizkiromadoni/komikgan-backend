@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import { count, eq } from "drizzle-orm"
 
 import { db } from "../db"
-import { users } from "../db/schema"
+import { bookmarks, users } from "../db/schema"
 import type { Env } from "../factory"
 import {
   getUserProfileRoute,
@@ -54,6 +54,8 @@ const userHandler = new OpenAPIHono<Env>()
     const user = await userModel.getUser({ id })
     if (!user) throw new InvariantError("User not found")
 
+    const bookmarkCount = await db.select({ count: count() }).from(bookmarks).where(eq(bookmarks.userId, id))
+
     return c.json(
       {
         status: "success",
@@ -62,7 +64,10 @@ const userHandler = new OpenAPIHono<Env>()
           username: user.username,
           email: user.email,
           role: user.role,
-          image: user.image
+          image: user.image,
+          bookmarks: {
+            count: bookmarkCount[0].count
+          }
         }
       },
       200
