@@ -3,6 +3,23 @@ import SerieSchema from "../schema/serieSchema";
 import authMiddleware from "../middleware/authMiddleware";
 import errorRoute from "./errorRoute";
 
+export const getRecommendationRoute = createRoute({
+    path: "/recommendation",
+    method: "get",
+    tags: ["series"],
+    description: "Get most recommended series",
+    responses: {
+        200: {
+            description: "success",
+            content: {
+                "application/json": {
+                    schema: SerieSchema.GetRecommendation.response
+                }
+            }
+        }
+    }
+})
+
 export const getLatestUpdateRoute = createRoute({
     path: "/latest",
     method: "get",

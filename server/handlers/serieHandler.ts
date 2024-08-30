@@ -1,5 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
-import { createSerieRoute, deleteSerieRoute, getAllSeriesRoute, getLatestUpdateRoute, getSerieRoute, getSeriesRoute, updateSerieRoute } from "../routes/serieRoute"
+import { createSerieRoute, deleteSerieRoute, getAllSeriesRoute, getLatestUpdateRoute, getRecommendationRoute, getSerieRoute, getSeriesRoute, updateSerieRoute } from "../routes/serieRoute"
 import type { Env } from "../factory"
 import serieModel from "../models/serieModel"
 import { saveBase64, slugify } from "../lib/utils"
@@ -10,6 +10,15 @@ import { getCookie } from "hono/cookie"
 import tokenManager from "../lib/tokenManager"
 
 const serieHandler = new OpenAPIHono<Env>()
+
+.openapi(getRecommendationRoute, async (c) => {
+    const results = await serieModel.getRecommendation()
+
+    return c.json({
+        status: "success",
+        data: results
+    }, 200)
+})
 
 .openapi(getLatestUpdateRoute, async (c) => {
     const { page, limit } = c.req.valid("query")

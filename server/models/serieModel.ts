@@ -1,6 +1,6 @@
 import { and, count, desc, eq, ilike, inArray } from "drizzle-orm"
 import { db } from "../db"
-import { chapters, genres, series, seriesToGenres, users } from "../db/schema"
+import { chapters, genres, series, seriesToGenres } from "../db/schema"
 import { slugify } from "../lib/utils"
 import genreModel from "./genreModel"
 
@@ -47,6 +47,25 @@ type UpdateSerieArgs = {
 }
 
 const serieModel = {
+  getRecommendation: async () => {
+    const results = await db.query.series.findMany({
+      where: eq(series.status, "published"),
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        imageUrl: true,
+        seriesStatus: true,
+        seriesType: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: [desc(series.createdAt)],
+      limit: 6
+    })
+
+    return results
+  },
   getLatestUpdate: async ({
     page = 1,
     limit = 9
