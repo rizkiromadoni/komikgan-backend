@@ -1,6 +1,5 @@
 import path from "path"
 import fs from "fs-extra"
-import sharp from "sharp";
 
 export function slugify(text: string) {
     return text
@@ -21,9 +20,7 @@ export async function saveBase64(base64: string, filename: string) {
 
     await fs.ensureDir(path.dirname(filepath))
 
-    await sharp(Buffer.from(base64Data as string, "base64")).webp({ quality: 80 }).toFile(filepath)
-
-    // await fs.writeFile(filepath, base64Data as string, { encoding: "base64" })
+    await fs.writeFile(filepath, base64Data as string, { encoding: "base64" })
 
     return new URL(path.join(baseDir, filename), process.env.APP_URL).href
 }
