@@ -84,7 +84,9 @@ const userModel = {
             email: data.email,
             password: hashedPassword,
             role: data.role || "user",
-            image: data.image
+            image: data.image,
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
         }).returning()
     
         return newUser[0]
@@ -97,7 +99,8 @@ const userModel = {
             email: data.email,
             password: data.password ? await passwordManager.hash(data.password) : undefined,
             role: data.role,
-            image: data.image
+            image: data.image,
+            updatedAt: new Date(Date.now()),
         })
         .where(typeof identifier === "number" ? eq(users.id, identifier) : eq(users.username, identifier))
         .returning()

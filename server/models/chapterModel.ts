@@ -108,7 +108,9 @@ const chapterModel = {
             status: data.status,
             chapter: data.chapter,
             serieId: data.serieId,
-            userId: data.userId
+            userId: data.userId,
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
         })
         .returning()
 

@@ -46,7 +46,12 @@ const genreModel = {
     createGenre: async (data: { name: string }) => {
         const result = await db
         .insert(genres)
-        .values({ name: data.name, slug: slugify(data.name) })
+        .values({
+            name: data.name,
+            slug: slugify(data.name),
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
+        })
         .returning()
 
         return result[0]
@@ -54,7 +59,11 @@ const genreModel = {
     updateGenre: async (identifier: string | number, data: { name: string }) => {
         const result = await db
         .update(genres)
-        .set({ name: data.name, slug: slugify(data.name) })
+        .set({
+            name: data.name,
+            slug: slugify(data.name),
+            updatedAt: new Date(Date.now()),
+        })
         .where(typeof identifier === "number" ? eq(genres.id, identifier) : eq(genres.slug, identifier))
         .returning()
 

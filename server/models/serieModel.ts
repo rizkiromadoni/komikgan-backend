@@ -316,7 +316,9 @@ const serieModel = {
         author: data.author,
         artist: data.artist,
         serialization: data.serialization,
-        userId: data.userId
+        userId: data.userId,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now()),
       })
       .returning()
 
