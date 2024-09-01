@@ -49,6 +49,8 @@ const chapterHandler = new OpenAPIHono<Env>()
         userId: user.id
     })
 
+    await serieModel.updateSerie(payload.serieId, {})
+
     return c.json({
         status: "success",
         data: {
